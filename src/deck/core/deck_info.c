@@ -57,6 +57,7 @@ static bool registerRequiredEstimator(StateEstimatorType estimator);
 static bool requiredLowInterferenceRadioMode = false;
 
 static char* deck_force = CONFIG_DECK_FORCE;
+static char* deck_force1 = CONFIG_DECK_FORCE1;
 
 void deckInfoInit()
 {
@@ -241,6 +242,36 @@ static void enumerateDecks(void)
           nDecks++;
           deckInfos[nDecks - 1].driver = driver;
           DEBUG_PRINT("compile-time forced driver %s added\n", deck_force);
+        } else {
+          DEBUG_PRINT("WARNING: No room for compile-time forced driver\n");
+        }
+      }
+      token = strtok(NULL, delim);
+    }
+  }
+
+  // Add build-forced driver
+  if (strlen(deck_force1) > 0 && strncmp(deck_force1, "none", 4) != 0) {
+    DEBUG_PRINT("CONFIG_DECK_FORCE1=%s found\n", deck_force1);
+  	//split deck_force into multiple, separated by colons, if available
+    char delim[] = ":";
+
+    char temp_deck_force1[strlen(deck_force1) + 1];
+    strcpy(temp_deck_force1, deck_force1);
+    char * token = strtok(temp_deck_force1, delim);
+
+    while (token) {
+      deck_force = token;
+
+      const DeckDriver *driver = deckFindDriverByName(deck_force1);
+      if (!driver) {
+        DEBUG_PRINT("WARNING: compile-time forced driver %s not found\n", deck_force1);
+      } else if (driver->init || driver->test) {
+        if (nDecks <= DECK_MAX_COUNT)
+        {
+          nDecks++;
+          deckInfos[nDecks - 1].driver = driver;
+          DEBUG_PRINT("compile-time forced driver %s added\n", deck_force1);
         } else {
           DEBUG_PRINT("WARNING: No room for compile-time forced driver\n");
         }

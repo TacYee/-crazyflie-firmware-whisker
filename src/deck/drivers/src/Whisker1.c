@@ -1,4 +1,4 @@
-#define DEBUG_MODULE "WHISKER"
+#define DEBUG_MODULE "WHISKER1"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #include "debug.h"
 #include "log.h"
 #include "deck.h"
-#include "uart1.h"
+#include "uart2.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "system.h"
@@ -16,16 +16,17 @@
 
 static uint8_t isInit = 0;
 // uint32_t loggedTimestamp = 0;
-float barometer1_1, barometer1_2, barometer1_3;
+float barometer2_1, barometer2_2, barometer2_3; 
 
-void readSerial1() {
+
+void readSerial2() {
     char buf[MAX_MESSAGE_SIZE];
     char c = '0';
     char* token = NULL;
     int tokenCount = 0;
 
     for (int i = 0; i < MAX_MESSAGE_SIZE - 1; i++) {
-        if (!uart1GetDataWithDefaultTimeout(&c)) break;
+        if (!uart2GetCharWithDefaultTimeout(&c)) break;
 
         if (c == '\n') {
             buf[i] = '\0';
@@ -36,13 +37,13 @@ void readSerial1() {
             while (token != NULL && tokenCount < 3) {
                 switch (tokenCount) {
                     case 0:
-                        barometer1_1 = atof(token);
+                        barometer2_1 = atof(token);
                         break;
                     case 1:
-                        barometer1_2 = atof(token);
+                        barometer2_2 = atof(token);
                         break;
                     case 2:
-                        barometer1_3 = atof(token);
+                        barometer2_3 = atof(token);
                         break;
                 }
 
@@ -51,7 +52,7 @@ void readSerial1() {
             }
 
             if (tokenCount < 3) {
-                DEBUG_PRINT("Error parsing sensor1 data\n");
+                DEBUG_PRINT("Error parsing sensor2 data\n");
             }
 
             break;
@@ -68,44 +69,43 @@ void readSerial1() {
 }
 
 
-
-void WhiskerTask(void *param) {
+void WhiskerTask1(void *param) {
     systemWaitStart();
     while (1) {
-        readSerial1();
+        readSerial2();
     }
 }
 
-static void WhiskerInit() {
+static void WhiskerInit1() {
     DEBUG_PRINT("Initialize driver\n");
 
-    uart1Init(115200);
+    uart2Init(115200);
 
-    xTaskCreate(WhiskerTask, WHISKER_TASK_NAME, WHISKER_TASK_STACKSIZE, NULL,
+    xTaskCreate(WhiskerTask1, WHISKER_TASK_NAME1, WHISKER_TASK_STACKSIZE, NULL,
                 WHISKER_TASK_PRI, NULL);
 
     isInit = 1;
 }
 
-static bool WhiskerTest() {
+static bool WhiskerTest1() {
     return isInit;
 }
 
-static const DeckDriver WhiskerDriver = {
-        .name = "Whisker",
-        .init = WhiskerInit,
-        .test = WhiskerTest,
-        .usedPeriph = DECK_USING_UART1,
+static const DeckDriver WhiskerDriver1 = {
+        .name = "Whisker1",
+        .init = WhiskerInit1,
+        .test = WhiskerTest1,
+        .usedPeriph = DECK_USING_UART2,
 };
 
-DECK_DRIVER(WhiskerDriver);
+DECK_DRIVER(WhiskerDriver1);
 
 
 /**
  * Logging variables for the Whisker
  */
-LOG_GROUP_START(Whisker)
-LOG_ADD(LOG_FLOAT, Barometer1_1, &barometer1_1)
-LOG_ADD(LOG_FLOAT, Barometer1_2, &barometer1_2)
-LOG_ADD(LOG_FLOAT, Barometer1_3, &barometer1_3)
-LOG_GROUP_STOP(Whisker) 
+LOG_GROUP_START(Whisker1)
+LOG_ADD(LOG_FLOAT, Barometer2_1, &barometer2_1)
+LOG_ADD(LOG_FLOAT, Barometer2_2, &barometer2_2)
+LOG_ADD(LOG_FLOAT, Barometer2_3, &barometer2_3)
+LOG_GROUP_STOP(Whisker1) 

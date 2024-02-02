@@ -100,7 +100,7 @@
 #define UART2_TASK_PRI          3
 #define CRTP_SRV_TASK_PRI       0
 #define PLATFORM_SRV_TASK_PRI   0
-#define WHISKER_TASK_PRI        1
+#define WHISKER_TASK_PRI        3
 
 // Not compiled
 #if 0
@@ -160,7 +160,7 @@
 #define APP_TASK_NAME           "APP"
 #define FLAPPERDECK_TASK_NAME   "FLAPPERDECK"
 #define WHISKER_TASK_NAME        "WHISKER"
-
+#define WHISKER_TASK_NAME1       "WHISKER1"
 
 //Task stack sizes
 #define SYSTEM_TASK_STACKSIZE         (2* configMINIMAL_STACK_SIZE)

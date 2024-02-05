@@ -30,7 +30,6 @@ void readSerial2() {
 
         if (c == '\n') {
             buf[i] = '\0';
-            DEBUG_PRINT("%s\n", buf);
 
             // 使用strtok分割字符串
             token = strtok(buf, ",");
